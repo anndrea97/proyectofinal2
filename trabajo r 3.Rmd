@@ -1,0 +1,116 @@
+---
+title: "Ejercicio final"
+author: "Belén Andrea de la Fuente Rodríguez"
+output: 
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+
+  
+---
+**Índice** 
+
+1. [Expresiones regulares](#id1)
+2. [RMarkdown](#id2)
+3. [GGPlot](#id3)
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Expresiones regulares<a name="id1"></a>
+
+Cómo páginas que hablen de expresiones regulares, he encontrado multitud entre las cuales me gustaría destacar y nombrar estas dos. Probablemente la segunda opción no sería la mas apropiada o la que usaría, pero me parece relevante destacar que existen multitud de páginas que aportan expresiones distintas y todas pueden aportar algo.
+
+En el primer ejemplo y desde mi punto de vista bastante útil tengo este link, <https://cran.r-project.org/web/packages/stringr/vignettes/regular-expressions.html>
+Como ejemplo "malo" he encontrado esta página <http://www.datasciencemadesimple.com/sub-gsub-function-in-r/> 
+Destacar que en el segundo caso apenas habla de expresiones regulares, no es una página útil si lo que se necesita es obtener expresiones regulares concretas. Simplemente te nombra la utilidad de la función gsub y utiliza un único ejemplo de cómo se utiliza. Por otro lado, en el primer enlace se encuentran multitud de expresiones. Parte de cero, te explica paso a paso cómo funcionan las expresiones regulares. Tiene pequeños títulos que separan los apartados, dentro de cada apartado explica cómo se hace cada caso y aporta un ejemplo que ayuda a comprenderlo.
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+## RMarkdown<a name="id2"></a>
+
+Respecto a emplear recursos en Rmeackdown me han llamado la atención varias páginas, entre las cuales me gustaría destacar estas dos: 
+<https://rmarkdown.rstudio.com/lesson-1.html>
+<https://commonmark.org/help/tutorial/99-end.html>
+En el primer caso la página de rstudio es de las más completas, una página muy interactiva donde te enseña los conceptos más básicos, así como ciertos ejemplos más elaborados para mejorar tu Rmarkdown. Por otra parte, encontramos la segunda página que desde mi punto de vista, no está mal. Cabe destacar que tiene la parte más básica de Rmarkdown, si se necesita realizar o aprender algo más elaborado recomendaría utilizar la primera página. En la segunda página aparte de ofrecer el tutorial de las cuestiones básicas, aparecen pequeños ejercicios para practicar, lo que la hace más atractiva si lo único que necesitas es aprender las cuestiones básicas. 
+
+
+## GGPlot<a name="id3"></a>
+
+
+You can also embed plots, for example:
+```{r, include= FALSE}
+library(ggplot2)
+library(reshape2)
+library(rvest)
+library(lubridate)
+library(knitr)
+library(highcharter)
+library(ggthemes)
+library(bootstrap)
+library(prettydoc)
+library(rmdformats)
+
+
+```
+
+
+```{r , echo=FALSE, include= FALSE}
+
+url.bolsa<- "https://es.investing.com/currencies/eur-usd-historical-data"
+tmp1 <- read_html(url.bolsa)
+tmp1 <- html_nodes(tmp1,"table")
+sapply(tmp1, class)
+
+sapply(tmp1, function(x) dim(html_table(x, fill = TRUE)))
+
+eur <- html_table(tmp1[[2]])
+eur
+tabla<-head(eur)
+``` 
+
+```{r , echo=FALSE }
+kable(tabla)
+```
+
+```{r,include=FALSE, echo = FALSE}
+str(eur)
+#eur$Fecha = as.Date("%d%m%Y")
+eur$Fecha <- as.Date(eur$Fecha, format ="%d.%m.%Y")
+eur$Apertura <- gsub(pattern = ",", replacement = ".", x = eur$Apertura)
+eur$Apertura<- as.numeric(gsub(pattern = ",", replacement = ".", x = eur$Apertura))
+eur$Último <- as.numeric(gsub(pattern = ",", replacement = ".", x = eur$Último))
+eur$Máximo <- as.numeric(gsub(pattern = ",", replacement = ".", x = eur$Máximo))
+eur$Mínimo <- as.numeric(gsub(pattern = ",", replacement = ".", x = eur$Mínimo))
+str(eur)
+
+```
+
+```{r, echo=FALSE}
+
+ggplot(eur, aes(x = Fecha, y = Mínimo, col = "Cambio")) +
+  geom_point() + geom_line()+ theme_clean()
+
+ggplot(eur, aes(x = Fecha, y = Mínimo, col = "Cambio")) +
+  geom_smooth() + geom_line(colour = "blue")+ theme_clean() 
+
+
+hchart(eur, type ="line", hcaes(x = Fecha, y = Mínimo, group = Fecha)) %>% 
+  hc_add_theme(hc_theme_ffx())%>% hc_legend(align = "right", 
+            verticalAlign = "top") %>%
+  hc_tooltip(shared = TRUE,
+             borderColor = "black",
+             pointFormat = "{point.country}: {point.gdp_tn:.2f}<br>")
+
+
+```
+
+
+
+
