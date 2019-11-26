@@ -15,9 +15,9 @@ output:
 
 1. [Expresiones regulares](#id1)
 2. [RMarkdown](#id2)
-3. [GGPlot](#id3)
-4. [Gráfico dinámico](#id3)
-
+3. [Tabla análisis](#id3)
+4. [GGPlot](#id4)
+5. [Gráfico dinámico](#id5)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -35,13 +35,15 @@ Destacar que en el segundo caso apenas habla de expresiones regulares, no es una
 
 ## RMarkdown<a name="id2"></a>
 
-Respecto a emplear recursos en Rmeackdown me han llamado la atención varias páginas, entre las cuales me gustaría destacar estas dos: 
+RMarkdown supone una forma de presentar los resultados obetnidos en R, en prosa, se encuentran múltiples formas para presentarlo. Con los paquetes existentes se puede obtener una forma original de presentar nuestros estudios.
+
+Respecto a emplear recursos en Rmarkdown me han llamado la atención varias páginas, entre las cuales me gustaría destacar estas dos: 
 <https://rmarkdown.rstudio.com/lesson-1.html>
 <https://commonmark.org/help/tutorial/99-end.html>
 En el primer caso la página de rstudio es de las más completas, una página muy interactiva donde te enseña los conceptos más básicos, así como ciertos ejemplos más elaborados para mejorar tu Rmarkdown. Por otra parte, encontramos la segunda página que desde mi punto de vista, no está mal. Cabe destacar que tiene la parte más básica de Rmarkdown, si se necesita realizar o aprender algo más elaborado recomendaría utilizar la primera página. En la segunda página aparte de ofrecer el tutorial de las cuestiones básicas, aparecen pequeños ejercicios para practicar, lo que la hace más atractiva si lo único que necesitas es aprender las cuestiones básicas. 
 
 
-## GGPlot<a name="id3"></a>
+## Tabla análisis<a name="id3"></a>
 
 
 ```{r, include= FALSE}
@@ -59,8 +61,9 @@ library(rmdformats)
 
 ```
 
-Se va a realizar un análisis del tipo de cambio EUR/USD - Dólar estadounidense del último mes. Como variables principales se cuentan con el valor del tipo de cambio en su apertura, su máximo, su mínimo, la apertura y el último valor. 
-En un primer caso se muestra una tabla con los datos principales y las variables de dicho estudio.
+Se va a realizar un análisis del tipo de cambio EUR/USD - Dólar estadounidense del último mes. Para leer la tabla se ha empleado el método de web scraping, a continuación se ha depurado la tabla para poder trabajar con ella. 
+En esta primera tabla se muestra un head de los datos, la función principal de esta tabla es mostrar las variables con las que se va a trabajar. Como se observa, las variables aparte del tipo de cambio son el valor de apertura, su máximo, mínimo, su último valor y para finalizar, el porcentaje de variación respecto a su máximo y mínimo.
+
 
 ```{r , echo=FALSE, include= FALSE}
 
@@ -93,8 +96,9 @@ eur$Mínimo <- as.numeric(gsub(pattern = ",", replacement = ".", x = eur$Mínimo
 str(eur)
 
 ```
+## GGPlot<a name="id4"></a>
 
-A continuación, se realizan distintos gráficos para mostrar el avance del tipo de cambio. En el primer GGPlot, se enseñan los registros del tipo de cambio, se muestra la evolución del valor mínimo en el (eje y), la fecha se encuentra en el eje x. Con este gráfico se quiere demostrar que a finales de octubre el tipo de cambio alcanza su mayor mínimo en este útimo mes.
+A continuación, se realizan distintos gráficos para mostrar el avance del tipo de cambio en el último mes. En el primer GGPlot, se enseñan los registros del tipo de cambio, se muestra la evolución del valor mínimo en el (eje y), los datos se actualizan diariamente, por lo que las gráficas varían también diariamente. 
 
 Sin embargo, lo mismo ocurre si se compara el máximo, se observa, que de nuevo alcanza su máximo a finales del mes de octubre. 
 
@@ -102,16 +106,17 @@ Sin embargo, lo mismo ocurre si se compara el máximo, se observa, que de nuevo 
 ```{r, echo=FALSE, warning= FALSE}
 
 ggplot(eur, aes(x = Fecha, y = Mínimo, col = "Cambio EUR/USD")) +
-  geom_point() + geom_line()+ theme_clean()
+  geom_point(colour = 'black') + geom_line()+ theme_clean()
 
-ggplot(eur, aes(x = Fecha, y = Máximo, col = "Cambio")) +
+ggplot(eur, aes(x = Fecha, y = Máximo, col = "Cambio EUR/USD")) +
   geom_smooth(method ='loess', formula = y ~ x) + geom_line(colour = "blue")+ theme_clean() 
 ```
 
-## Gráfico dinámico<a name="id3"></a>
+## Gráfico dinámico<a name="id5"></a>
 
+Por último, el gráfico dinámico muestra de nuevo la evolución del mínimo respecto a los días, sabiendo que el tipo de cambio es el valor de una divisa en función de la otra, en este caso la divisa base es el euro, por lo que se indica el valor mínimo de 1 EUR respecto al dolar estadounidense.
+Al observar este gráfico, se puede observar que el valor más alto del mínimo coincide en la misma fecha que el valor más alto del máximo que se puede ver en el gráfico anterior y coincide con finales de octubre/ principios de noviembre. 
 
-Por último, el gráfico dinámico muestra la evolución del mínimo respecto a los días, 
 ```{r, echo=FALSE, warning= FALSE}
 
 hchart(eur, type ="line", hcaes(x = Fecha, y = Mínimo, group = Fecha)) %>% 
